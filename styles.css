@@ -113,3 +113,5 @@ main{flex:1;min-height:0;position:relative;background:#f5f3ee}
 #nosotros .about-copy{grid-column:auto;grid-row:auto}
 @media(max-width:680px){#nosotros .about-grid{grid-template-columns:1fr;gap:11px}#nosotros .about-copy{grid-column:1;grid-row:auto}.hero-content{grid-column:1;grid-row:1}.hero-art{grid-column:1;grid-row:2}}
 
+.contact-people .phone-number{display:flex;align-items:center;gap:9px;white-space:nowrap}.contact-people .phone-number svg{display:block;width:22px;height:22px;flex:0 0 22px;filter:drop-shadow(0 2px 3px #0002)}.contact-people>a:hover .phone-number svg{transform:scale(1.08);transition:transform .22s}
+
