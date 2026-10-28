@@ -1,26 +1,17 @@
 # Clave Inmobiliaria
 
-Sitio web institucional de Clave Inmobiliaria, inmobiliaria de Córdoba Capital.
+Sitio institucional de Clave Inmobiliaria, inmobiliaria de Córdoba Capital.
 
-## Desarrollo local
+## Publicar en Netlify
 
-Es un sitio estático: abre `index.html` en el navegador o sirve esta carpeta con cualquier servidor estático.
+- Build command: vacío
+- Publish directory: `.`
 
-## Publicación en Netlify
+Es un sitio estático, sin dependencias ni proceso de compilación.
 
-Conecta este repositorio en Netlify. Configuración:
+## Secciones
 
-- **Build command:** vacío
-- **Publish directory:** `.`
+Navegación compacta mediante botones: Inicio, Quiénes somos, Alquileres, Ventas y Contacto. La entrada muestra el logo animado antes de revelar el sitio.
 
-No requiere dependencias ni compilación.
-
-## Contenido
-
-- Presentación de la inmobiliaria y su equipo
-- Secciones para alquileres y ventas (listas para incorporar propiedades)
-- Contacto por WhatsApp, Facebook e Instagram
-- Animación introductoria de una llave y una puerta
-
-Las imágenes de propiedades se pueden agregar en `assets/` y actualizar en `index.html`.
+Agrega las imágenes de propiedades en `assets/` y enlázalas desde `index.html` cuando estén listas para publicar.
 
