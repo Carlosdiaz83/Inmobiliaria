@@ -26,34 +26,46 @@ if(intro){
   function prepareParticles(){
     if(!logo?.naturalWidth||!canvas||!ctx)return;
     const rect=logo.getBoundingClientRect();
-    const size=rect.width||260;
-    const dpr=window.devicePixelRatio||1;
-    canvas.width=Math.round(size*dpr);
-    canvas.height=Math.round(size*dpr);
-    canvas.style.width=`${size}px`;
-    canvas.style.height=`${size}px`;
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const vw=window.innerWidth;
+    const vh=window.innerHeight;
+    canvas.width=Math.round(vw*dpr);
+    canvas.height=Math.round(vh*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const logoSize=rect.width||260;
     const grid=48;
-    cellCss=size/grid;
+    cellCss=logoSize/grid;
     particles=[];
+
     const sw=logo.naturalWidth/grid;
     const sh=logo.naturalHeight/grid;
+    const startX=rect.left;
+    const startY=rect.top;
+    const maxRadius=Math.hypot(vw,vh)*0.85;
+
     for(let row=0;row<grid;row++){
       for(let col=0;col<grid;col++){
-        const angle=Math.atan2(row-(grid-1)/2,col-(grid-1)/2)+(Math.random()-.5)*0.8;
-        const distance=90+Math.random()*260;
+        const pStartX=startX+col*cellCss;
+        const pStartY=startY+row*cellCss;
+        const dx=pStartX+cellCss/2-vw/2;
+        const dy=pStartY+cellCss/2-vh/2;
+        const baseAngle=Math.atan2(dy,dx);
+        const angle=baseAngle+(Math.random()-0.5)*0.75;
+        const travelDist=maxRadius*(0.75+Math.random()*0.55);
+
         particles.push({
           sx:col*sw,
           sy:row*sh,
           sw:sw,
           sh:sh,
-          x:col*cellCss,
-          y:row*cellCss,
-          vx:Math.cos(angle)*distance,
-          vy:Math.sin(angle)*distance,
-          rotation:(Math.random()-.5)*2.2,
-          delay:Math.random()*0.28,
-          scale:0.4+Math.random()*0.4
+          startX:pStartX,
+          startY:pStartY,
+          targetDx:Math.cos(angle)*travelDist,
+          targetDy:Math.sin(angle)*travelDist,
+          spin:(Math.random()-0.5)*5,
+          delay:Math.random()*0.32,
+          fadeStart:0.45+Math.random()*0.4
         });
       }
     }
@@ -61,29 +73,45 @@ if(intro){
 
   function scatterLogo(){
     if(!ctx||!particles.length)return;
-    const started=performance.now(),duration=1300;
+    const started=performance.now();
+    const duration=2200;
     canvas.classList.add('is-active');
     logo.style.opacity='0';
+
     function frame(now){
       const elapsed=Math.min(1,(now-started)/duration);
       ctx.save();
       ctx.setTransform(1,0,0,1,0,0);
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.restore();
-      const pSize=Math.max(cellCss*1.08,cellCss+0.6);
+
+      const pSize=cellCss+0.8;
       for(let i=0;i<particles.length;i++){
         const part=particles[i];
         const progress=Math.max(0,Math.min(1,(elapsed-part.delay)/(1-part.delay)));
-        const eased=1-Math.pow(1-progress,2.2);
-        const curScale=Math.max(0.1,1-part.scale*eased);
-        const w=pSize*curScale;
+        if(progress<=0){
+          ctx.drawImage(logo,part.sx,part.sy,part.sw,part.sh,part.startX,part.startY,pSize,pSize);
+          continue;
+        }
+
+        const eased=Math.pow(progress,1.6);
+        const curX=part.startX+part.targetDx*eased;
+        const curY=part.startY+part.targetDy*eased;
+
+        let alpha=1;
+        if(progress>part.fadeStart){
+          alpha=Math.max(0,1-(progress-part.fadeStart)/(1-part.fadeStart));
+        }
+        if(alpha<=0)continue;
+
         ctx.save();
-        ctx.globalAlpha=Math.max(0,1-progress);
-        ctx.translate(part.x+part.vx*eased+cellCss/2,part.y+part.vy*eased+cellCss/2);
-        ctx.rotate(part.rotation*eased);
-        ctx.drawImage(logo,part.sx,part.sy,part.sw,part.sh,-w/2,-w/2,w,w);
+        ctx.globalAlpha=alpha;
+        ctx.translate(curX+cellCss/2,curY+cellCss/2);
+        ctx.rotate(part.spin*eased);
+        ctx.drawImage(logo,part.sx,part.sy,part.sw,part.sh,-pSize/2,-pSize/2,pSize,pSize);
         ctx.restore();
       }
+
       if(elapsed<1){
         requestAnimationFrame(frame);
       }else{
@@ -98,9 +126,9 @@ if(intro){
     if(logo?.complete&&logo.naturalWidth)prepareParticles();
     else logo?.addEventListener('load',prepareParticles,{once:true});
     window.addEventListener('resize',()=>{if(!canvas?.classList.contains('is-active'))prepareParticles();},{passive:true});
-    window.setTimeout(()=>{intro.classList.add('is-fracturing');scatterLogo();},850);
-    window.setTimeout(()=>intro.classList.add('is-revealing'),1850);
-    window.setTimeout(()=>intro.remove(),2500);
+    window.setTimeout(()=>{intro.classList.add('is-fracturing');scatterLogo();},1850);
+    window.setTimeout(()=>intro.classList.add('is-revealing'),3300);
+    window.setTimeout(()=>intro.remove(),4200);
   }
 }
 document.getElementById('year').textContent=new Date().getFullYear();
