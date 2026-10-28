@@ -1,18 +1,26 @@
 const intro=document.getElementById('intro');
-const enter=()=>{
-  if(intro.classList.contains('key-inserting'))return;
-  intro.classList.add('key-inserting');
-  window.setTimeout(()=>intro.classList.add('door-opening'),720);
-  window.setTimeout(()=>intro.classList.add('crossing'),2050);
-  window.setTimeout(()=>{intro.classList.add('is-opening');document.body.classList.remove('intro-active')},2550);
-  window.setTimeout(()=>intro.remove(),3400);
-};
-document.getElementById('enter').addEventListener('click',enter);
-document.body.classList.add('intro-active');
+const views=[...document.querySelectorAll('.view')];
+const tabs=[...document.querySelectorAll('.nav-tab')];
+function showView(id){
+  const target=document.getElementById(id);
+  if(!target||!target.classList.contains('view'))return;
+  views.forEach(view=>view.classList.toggle('is-active',view===target));
+  tabs.forEach(tab=>{const active=tab.dataset.view===id;tab.classList.toggle('active',active);if(active)tab.setAttribute('aria-current','page');else tab.removeAttribute('aria-current')});
+  document.getElementById('nav').classList.remove('open');
+  document.getElementById('menu-toggle').setAttribute('aria-expanded','false');
+  history.replaceState(null,'',`#${id}`);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.forEach(tab=>tab.addEventListener('click',()=>showView(tab.dataset.view)));
+document.querySelectorAll('button[data-view]').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
+document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{const id=link.getAttribute('href').slice(1);if(document.getElementById(id)?.classList.contains('view')){event.preventDefault();showView(id)}}));
+showView('inicio');
+if(intro){
+  window.setTimeout(()=>intro.classList.add('is-fracturing'),750);
+  window.setTimeout(()=>intro.classList.add('is-revealing'),1450);
+  window.setTimeout(()=>intro.remove(),2350);
+}
 document.getElementById('year').textContent=new Date().getFullYear();
 const toggle=document.getElementById('menu-toggle'),nav=document.getElementById('nav');
 toggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open))});
-nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>nav.classList.remove('open')));
-const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.12});
-document.querySelectorAll('.section-kicker,.about-grid,.about-bottom,.listings-heading,.empty-listing,.sales-layout,.sales-foot,.contact-inner').forEach(el=>{el.classList.add('reveal');observer.observe(el)});
 
